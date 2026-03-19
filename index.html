@@ -6,11 +6,11 @@
     <title>2026富邦悍將購票狀態查詢</title>
     <style>
         :root {
-            --fubon-blue: #002255; //use ColorZilla to get the correct color from https://www.fubonguardians.com/
+            --fubon-blue: #002255; /*use ColorZilla to get the correct color from official website */
             --tag-red: #ff4d4f;
         }
         body {
-            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; //todo: try add jf open font
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; /* todo: try add jf open font */
             background-color: #f4f7f9;
             margin: 0;
             padding: 15px;
@@ -162,7 +162,6 @@
         const month = event.id.substring(0, 2);
         const day = event.id.substring(2, 4);
         
-        // set year 2026
         const dateObj = new Date(`2026-${month}-${day}`);
         const dayOfWeek = weekDays[dateObj.getDay()];
 
