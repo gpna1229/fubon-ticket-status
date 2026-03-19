@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026富邦悍將購票狀態查詢</title>
+    <style>
+        :root {
+            --fubon-blue: #002255; //use ColorZilla to get the correct color from https://www.fubonguardians.com/
+            --tag-red: #ff4d4f;
+        }
+        body {
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; //todo: try add jf open font
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 15px;
+            color: #333;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        header {
+            background-color: var(--fubon-blue);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .info-bar {
+            background-color: #fff;
+            padding: 10px;
+            font-size: 0.85em;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+        }
+        .ticket-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px 12px;
+            margin-top: 10px;
+        }
+        .event-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: white;
+            text-decoration: none;
+            color: inherit;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            transition: all 0.2s;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            min-height: 85px;
+        }
+        .event-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--fubon-blue);
+            background-color: #f0f5ff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .date-text {
+            font-size: 1.4em;
+            font-weight: 800;
+            color: var(--fubon-blue);
+        }
+        .day-text {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 4px;
+        }
+        .event-note {
+            position: absolute;
+            top: -10px;
+            right: -5px;
+            background-color: var(--tag-red);
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1;
+            white-space: nowrap;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.75em;
+            color: #999;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2 style="margin:0">購票狀態快速查詢系統</h2>
+        <p style="margin:5px 0 0; font-size: 0.9em; opacity: 0.8;">Fubon Guardians 2026</p>
+    </header>
+    
+    <div class="info-bar">
+        🕒 截止時間：<b>2026/03/19 18:00</b><br>
+        <b>(顯示亞瑟傳奇+亞瑟王優先購票後剩餘座位)</b><br>
+        <b>點擊日期即可查看該場次所有區域的剩餘座位數量</b><br>
+        <b>但詳細剩哪一個位置是無法查詢的~</b><br>
+        <b>祝大家全面開賣時都可以順利買到位置!!</b><br>
+    </div>
+
+    <div id="ticketGrid" class="ticket-grid">
+        </div>
+
+    <footer>
+        Created By 剛普夫人 gpna1229 @2026<br>
+        **本網頁僅供球迷交流查詢使用**
+    </footer>
+</div>
+
+<script>
+    const eventData = [
+        { id: "0403", note: "開幕戰" },
+        { id: "0404", note: "開幕戰" },
+        { id: "0405", note: "林哲瑄One For All" },
+        { id: "0406", note: "林哲瑄引退" },
+        { id: "0407", note: "" },
+        { id: "0414", note: "" },
+        { id: "0415", note: "" },
+        { id: "0417", note: "" },
+        { id: "0418", note: "Lu來Lu快樂" },
+        { id: "0419", note: "Lu來Lu快樂" },
+        { id: "0428", note: "" },
+        { id: "0429", note: "" },
+        { id: "0505", note: "" },
+        { id: "0506", note: "" },
+        { id: "0508", note: "" },
+        { id: "0509", note: "愛戀邱比特" },
+        { id: "0510", note: "愛戀邱比特" },
+        { id: "0515", note: "" },
+        { id: "0516", note: "迺夜市 呷好味" },
+        { id: "0517", note: "迺夜市 呷好味" },
+        { id: "0520", note: "" },
+        { id: "0521", note: "" },
+        { id: "0609", note: "" },
+        { id: "0611", note: "" },
+        { id: "0612", note: "" },
+        { id: "0613", note: "Skater JOHN" },
+        { id: "0614", note: "Skater JOHN" }
+    ];
+
+    const grid = document.getElementById('ticketGrid');
+    const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
+
+    eventData.forEach(event => {
+        const month = event.id.substring(0, 2);
+        const day = event.id.substring(2, 4);
+        
+        // set year 2026
+        const dateObj = new Date(`2026-${month}-${day}`);
+        const dayOfWeek = weekDays[dateObj.getDay()];
+
+        const anchor = document.createElement('a');
+        anchor.href = `${event.id}.html`;
+        anchor.className = 'event-card';
+        
+        let noteHtml = '';
+        if (event.note) {
+            noteHtml = `<div class="event-note">${event.note}</div>`;
+        }
+        
+        anchor.innerHTML = `
+            ${noteHtml}
+            <div class="date-text">${month}/${day}</div>
+            <div class="day-text">週${dayOfWeek}</div>
+        `;    
+        grid.appendChild(anchor);
+    });
+</script>
+</body>
+</html>
+
